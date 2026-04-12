@@ -33,6 +33,7 @@
   <link rel="stylesheet"
         href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
   <link rel="stylesheet" href="./static/css/index.css">
+  <link rel="stylesheet" href="./static/css/visualization.css">
   <link rel="icon" href="./static/images/favicon.webp">
 
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
@@ -110,14 +111,14 @@
           <h1 class="title is-1 publication-title">Learning to Identify Out-of-Distribution Objects for 3D LiDAR Anomaly Segmentation</h1>
 
           <p style="font-size: 1.25rem; margin: 1rem 0;">
-            <b>🎉 Accepted to CVPR 2026</span>!🎉</b>
+            <b>🎉 Accepted to CVPR 2026</span>! 🎉</b>
           </p>
 
           <div class="is-size-5 publication-authors">
             <span class="author-block">
               <a href="https://simom0.github.io/">Simone Mosco</a><sup>1</sup>,</span>
             <span class="author-block">
-              <a href="https://bender97.github.io/danielfusaro.github.io/">Daniel Fusaro</a><sup>1</sup>,</span>
+              <a href="https://bender97.github.io/">Daniel Fusaro</a><sup>1</sup>,</span>
             <span class="author-block">
               <a href="https://albertopretto.altervista.org/">Alberto Pretto</a><sup>1</sup>,
             </span>
@@ -207,7 +208,8 @@
       </video>
       -->
       <img src="./static/images/anomaly_segmentation.png"
-                 alt="3D LiDAR Anomaly Segmentation overview."/>
+                 alt="3D LiDAR Anomaly Segmentation overview."
+                 style="width: 100%; max-width: 600px; display: block; margin: auto;"/>
       <h2 class="subtitle has-text-centered">
         <span class="dnerf">3D LiDAR Anomaly Segmentation Overview</span>
       </h2>
@@ -434,6 +436,60 @@
   </div>
 </section>
 
+<section class="section pb-3">
+  <div class="container is-max-desktop">
+    <div class="rows">
+      <div class="rows is-centered ">
+        <div class="row is-full-width">
+          <h2 class="title is-3"><span>Qualitative Results</span></h2>
+
+            <!-- STU -->
+            <h3 class="title is-4"><span>STU</span></h3>
+
+              <div class="pc-container">
+                <div class="pc-panel">
+                  <div class="pc-title">Input</div>
+                  <canvas id="pc1"></canvas>
+                </div>
+
+                <div class="pc-panel">
+                  <div class="pc-title">Semantic Predictions</div>
+                  <canvas id="pc2"></canvas>
+                </div>
+
+                <div class="pc-panel">
+                  <div class="pc-title">Anomaly Predictions</div>
+                  <canvas id="pc3"></canvas>
+                </div>
+              </div>
+
+            <span style="display: block; height: 40px;"></span>
+            
+              <!-- SemanticKITTI-OoD -->
+            <h3 class="title is-4"><span>SemanticKITTI-OoD</span></h3>
+
+              <div class="pc-container">
+                <div class="pc-panel">
+                  <div class="pc-title">Input</div>
+                  <canvas id="pc4"></canvas>
+                </div>
+
+                <div class="pc-panel">
+                  <div class="pc-title">Semantic Predictions</div>
+                  <canvas id="pc5"></canvas>
+                </div>
+
+                <div class="pc-panel">
+                  <div class="pc-title">Anomaly Predictions</div>
+                  <canvas id="pc6"></canvas>
+                </div>
+              </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 
 <section class="section" id="BibTeX">
   <div class="container is-max-desktop content">
@@ -472,6 +528,349 @@
     </div>
   </div>
 </footer>
+
+<!-- Old single script
+<script type="module">
+import * as THREE from "https://esm.sh/three@0.158";
+import { OrbitControls } from "https://esm.sh/three@0.158/examples/jsm/controls/OrbitControls.js";
+import { PLYLoader } from "https://esm.sh/three@0.158/examples/jsm/loaders/PLYLoader.js";
+
+// your code here
+const canvas = document.getElementById("pc1");
+
+// Scene
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0xffffff);
+
+// Camera
+const camera = new THREE.PerspectiveCamera(60, 1, 0.01, 1000);
+camera.position.set(0, 0, 5);
+
+// Renderer
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+
+// Controls (mouse interaction)
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+
+// Resize function
+function resize() {
+  const width = canvas.clientWidth;
+  const height = canvas.clientWidth; // square
+
+  renderer.setSize(width, height, false);
+  camera.aspect = width / height;
+  camera.updateProjectionMatrix();
+}
+window.addEventListener("resize", resize);
+resize();
+
+function createCircleTexture() {
+  const size = 64;
+  const canvas = document.createElement('canvas');
+  canvas.width = size;
+  canvas.height = size;
+
+  const ctx = canvas.getContext('2d');
+  ctx.beginPath();
+  ctx.arc(size/2, size/2, size/2, 0, Math.PI * 2);
+  ctx.closePath();
+  ctx.fillStyle = 'white';
+  ctx.fill();
+
+  return new THREE.CanvasTexture(canvas);
+}
+
+function viridis(t) {
+  // t in [0,1]
+  const r = Math.max(Math.min(1.5*t - 0.5, 1), 0);
+  const g = Math.max(Math.min(1.5*t, 1), 0);
+  const b = Math.max(Math.min(1 - t, 1), 0);
+  return [r, g, b];
+}
+
+// Load point cloud
+const loader = new PLYLoader();
+
+loader.load("./assets/ply/kitti/input.ply", (geometry) => {
+
+  geometry.computeBoundingSphere();
+  geometry.center();
+
+  const pos = geometry.attributes.position.array;
+
+  let maxDist = 0;
+  const distances = [];
+
+  for (let i = 0; i < pos.length; i += 3) {
+    const x = pos[i];
+    const y = pos[i+1];
+    const z = pos[i+2];
+
+    const d = Math.sqrt(x*x + y*y + z*z);
+    distances.push(d);
+    if (d > maxDist) maxDist = d;
+  }
+
+  const R = geometry.boundingSphere.radius || 1;
+
+  const material = new THREE.PointsMaterial({
+    size: R * 0.005,
+    map: createCircleTexture(),
+    alphaTest: 0.5,   // removes square edges
+    transparent: true,
+    color: 0xffffff,   // important for vertex colors later
+    vertexColors: true
+  });
+
+  const colors = [];
+
+  for (let i = 0; i < distances.length; i++) {
+    const t = distances[i] / maxDist;
+
+    const [r, g, b] = viridis(t);
+    colors.push(r, g, b);
+  }
+
+  geometry.setAttribute(
+    'color',
+    new THREE.Float32BufferAttribute(colors, 3)
+  );
+
+  const points = new THREE.Points(geometry, material);
+  scene.add(points);
+
+  // adjust camera
+  camera.position.set(0, 0, R * 3);
+  controls.target.set(0, 0, 0);
+  controls.update();
+});
+
+// Render loop
+function animate() {
+  requestAnimationFrame(animate);
+  controls.update();
+  renderer.render(scene, camera);
+}
+animate();
+</script>
+-->
+
+<script type="module">
+import * as THREE from "https://esm.sh/three@0.158";
+import { OrbitControls } from "https://esm.sh/three@0.158/examples/jsm/controls/OrbitControls.js";
+import { PLYLoader } from "https://esm.sh/three@0.158/examples/jsm/loaders/PLYLoader.js";
+
+
+// =====================
+// Circle texture
+// =====================
+function createCircleTexture() {
+  const size = 64; // default 64
+  const c = document.createElement("canvas");
+  c.width = c.height = size;
+
+  const ctx = c.getContext("2d");
+  ctx.beginPath();
+  ctx.arc(size/2, size/2, size/2, 0, Math.PI * 2);
+  ctx.fillStyle = "white";
+  ctx.fill();
+
+  return new THREE.CanvasTexture(c);
+}
+
+const circleTex = createCircleTexture();
+
+
+// =====================
+// Simple colormap (viridis-like)
+// =====================
+function viridis(t) {
+  const r = Math.max(0, Math.min(1, 1.2*t));
+  const g = Math.max(0, Math.min(1, 1.5*t));
+  const b = Math.max(0, Math.min(1, 1 - t));
+  return [r, g, b];
+}
+
+
+// =====================
+// Viewer class
+// =====================
+class Viewer {
+  constructor(canvasId, url) {
+
+    this.canvas = document.getElementById(canvasId);
+
+    // Scene
+    this.scene = new THREE.Scene();
+    this.scene.background = new THREE.Color(0xffffff);
+
+    // Camera
+    this.camera = new THREE.PerspectiveCamera(60, 1, 0.01, 1000);
+    this.camera.position.set(0, 0, 5);
+
+    // Renderer
+    this.renderer = new THREE.WebGLRenderer({
+      canvas: this.canvas,
+      antialias: true
+    });
+
+    // Controls
+    this.controls = new OrbitControls(this.camera, this.renderer.domElement);
+    this.controls.enableDamping = true;
+
+    this.controls.addEventListener("change", () => {
+      if (this.onChange) this.onChange(this);
+    });
+
+    this.loader = new PLYLoader();
+
+    this.load(url);
+    this.resize();
+
+    window.addEventListener("resize", () => this.resize());
+  }
+
+  load(url) {
+
+    this.loader.load(url, (geo) => {
+
+      geo.computeBoundingSphere();
+      geo.center();
+
+      const R = geo.boundingSphere.radius || 1;
+
+      // ✅ ONLY compute colors if NOT present
+      if (!geo.hasAttribute("color")) {
+
+        const pos = geo.attributes.position.array;
+
+        let maxD = 0;
+        const dist = [];
+
+        for (let i = 0; i < pos.length; i += 3) {
+          const x = pos[i];
+          const y = pos[i+1];
+          const z = pos[i+2];
+
+          const d = Math.sqrt(x*x + y*y + z*z);
+          dist.push(d);
+          if (d > maxD) maxD = d;
+        }
+
+        const colors = [];
+
+        for (let i = 0; i < dist.length; i++) {
+          const t = dist[i] / maxD;
+          const [r, g, b] = viridis(t);
+          colors.push(r, g, b);
+        }
+
+        geo.setAttribute(
+          "color",
+          new THREE.Float32BufferAttribute(colors, 3)
+        );
+      }
+
+      // ✅ ONE material only
+      const material = new THREE.PointsMaterial({
+        size: R * 0.01,
+        vertexColors: true,
+        map: circleTex,
+        transparent: true,
+        alphaTest: 0.5
+      });
+
+      const points = new THREE.Points(geo, material);
+      this.scene.add(points);
+
+      this.camera.position.set(0, 0, R * 3);
+      this.controls.target.set(0, 0, 0);
+      this.controls.update();
+    });
+  }
+
+  resize() {
+    const w = this.canvas.clientWidth;
+    const h = w;
+
+    this.renderer.setSize(w, h, false);
+    this.camera.aspect = w / h;
+    this.camera.updateProjectionMatrix();
+  }
+
+  render() {
+    this.controls.update();
+    this.renderer.render(this.scene, this.camera);
+  }
+}
+
+
+// =====================
+// Create 3 viewers
+// =====================
+
+const stuUrl = "./assets/ply/stu/";
+const kittiUrl = "./assets/ply/kitti/";
+
+const v1 = new Viewer("pc1", stuUrl + "input.ply");
+const v2 = new Viewer("pc2", stuUrl + "semantic.ply");
+const v3 = new Viewer("pc3", stuUrl + "anomaly.ply");
+const v4 = new Viewer("pc4", kittiUrl + "input.ply");
+const v5 = new Viewer("pc5", kittiUrl + "semantic.ply");
+const v6 = new Viewer("pc6", kittiUrl + "anomaly.ply");
+const stuGroup = [v1, v2, v3];
+const kittiGroup = [v4, v5, v6];
+
+const viewers = [...stuGroup, ...kittiGroup];
+
+// =====================
+// Synchronization
+// =====================
+
+function syncGroup(viewers) {
+
+  let isSyncing = false;
+
+  viewers.forEach(v => {
+    v.onChange = (source) => {
+
+      if (isSyncing) return;
+      isSyncing = true;
+
+      viewers.forEach(t => {
+        if (t === source) return;
+
+        t.camera.position.copy(source.camera.position);
+        t.camera.quaternion.copy(source.camera.quaternion);
+        t.controls.target.copy(source.controls.target);
+
+        t.controls.update();
+      });
+
+      isSyncing = false;
+    };
+  });
+}
+
+syncGroup(stuGroup);
+syncGroup(kittiGroup);
+
+
+// =====================
+// Render loop
+// =====================
+function animate() {
+  requestAnimationFrame(animate);
+
+  for (const v of viewers) {
+    v.render();
+  }
+}
+
+animate();
+
+</script>
 
 </body>
 </html>
