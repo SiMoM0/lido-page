@@ -712,7 +712,7 @@ class Viewer {
     // Renderer
     this.renderer = new THREE.WebGLRenderer({
       canvas: this.canvas,
-      antialias: true
+      antialias: false
     });
 
     // Controls
@@ -774,7 +774,7 @@ class Viewer {
 
       // ✅ ONE material only
       const material = new THREE.PointsMaterial({
-        size: R * 0.01,
+        size: R * 0.001, // other options: 0.005, 0.01
         vertexColors: true,
         map: circleTex,
         transparent: true,
