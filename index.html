@@ -60,6 +60,25 @@
   th {
     background-color: #f5f5f5;
   }
+  .pc-panel {
+    position: relative;
+  }
+
+  /* 🔥 THIS is the visible box */
+  .pc-canvas-wrapper {
+    border-radius: 16px;
+    overflow: hidden; /* ⭐ CRITICAL */
+    box-shadow: 0 5px 10px rgba(0,0,0,0.15);
+    background: white;
+  }
+
+  /* canvas fills wrapper */
+  .pc-canvas-wrapper canvas {
+    display: block;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    border-color: white !important;
+  }
 </style>
 
 <nav class="navbar" role="navigation" aria-label="main navigation">
@@ -449,39 +468,107 @@
               <div class="pc-container">
                 <div class="pc-panel">
                   <div class="pc-title">Input</div>
-                  <canvas id="pc1"></canvas>
+                  <div class="pc-canvas-wrapper">
+                    <canvas id="pc1"></canvas>
+                  </div>
                 </div>
 
                 <div class="pc-panel">
                   <div class="pc-title">Semantic Predictions</div>
-                  <canvas id="pc2"></canvas>
+                  <div class="pc-canvas-wrapper">
+                    <canvas id="pc2"></canvas>
+                  </div>
                 </div>
 
                 <div class="pc-panel">
                   <div class="pc-title">Anomaly Predictions</div>
-                  <canvas id="pc3"></canvas>
+                  <div class="pc-canvas-wrapper">
+                    <canvas id="pc3"></canvas>
+                  </div>
                 </div>
               </div>
 
             <span style="display: block; height: 40px;"></span>
             
-              <!-- SemanticKITTI-OoD -->
+            <!-- SemanticKITTI-OoD -->
             <h3 class="title is-4"><span>SemanticKITTI-OoD</span></h3>
 
               <div class="pc-container">
                 <div class="pc-panel">
                   <div class="pc-title">Input</div>
-                  <canvas id="pc4"></canvas>
+                  <div class="pc-canvas-wrapper">
+                    <canvas id="pc4"></canvas>
+                  </div>
                 </div>
 
                 <div class="pc-panel">
                   <div class="pc-title">Semantic Predictions</div>
-                  <canvas id="pc5"></canvas>
+                  <div class="pc-canvas-wrapper">
+                    <canvas id="pc5"></canvas>
+                  </div>
                 </div>
 
                 <div class="pc-panel">
                   <div class="pc-title">Anomaly Predictions</div>
-                  <canvas id="pc6"></canvas>
+                  <div class="pc-canvas-wrapper">
+                    <canvas id="pc6"></canvas>
+                  </div>
+                </div>
+              </div>
+
+            <span style="display: block; height: 40px;"></span>
+
+            <!-- SemanticPOSS-OoD -->
+            <h3 class="title is-4"><span>SemanticPOSS-OoD</span></h3>
+
+              <div class="pc-container">
+                <div class="pc-panel">
+                  <div class="pc-title">Input</div>
+                  <div class="pc-canvas-wrapper">
+                    <canvas id="pc7"></canvas>
+                  </div>
+                </div>
+
+                <div class="pc-panel">
+                  <div class="pc-title">Semantic Predictions</div>
+                  <div class="pc-canvas-wrapper">
+                    <canvas id="pc8"></canvas>
+                  </div>
+                </div>
+
+                <div class="pc-panel">
+                  <div class="pc-title">Anomaly Predictions</div>
+                  <div class="pc-canvas-wrapper">
+                    <canvas id="pc9"></canvas>
+                  </div>
+                </div>
+              </div>
+
+            <span style="display: block; height: 40px;"></span>
+
+            <!-- nuScenes-OoD -->
+            <h3 class="title is-4"><span>nuScenes-OoD</span></h3>
+
+              <div class="pc-container">
+                <div class="pc-panel">
+                  <div class="pc-title">Input</div>
+                  <div class="pc-canvas-wrapper">
+                    <canvas id="pc10"></canvas>
+                  </div>
+                </div>
+
+                <div class="pc-panel">
+                  <div class="pc-title">Semantic Predictions</div>
+                  <div class="pc-canvas-wrapper">
+                    <canvas id="pc11"></canvas>
+                  </div>
+                </div>
+
+                <div class="pc-panel">
+                  <div class="pc-title">Anomaly Predictions</div>
+                  <div class="pc-canvas-wrapper">
+                    <canvas id="pc12"></canvas>
+                  </div>
                 </div>
               </div>
 
@@ -774,7 +861,7 @@ class Viewer {
 
       // ✅ ONE material only
       const material = new THREE.PointsMaterial({
-        size: R * 0.001, // other options: 0.005, 0.01
+        size: R * 0.005, // other options: 0.005, 0.01
         vertexColors: true,
         map: circleTex,
         transparent: true,
