@@ -794,7 +794,8 @@ class Viewer {
 
     // Camera
     this.camera = new THREE.PerspectiveCamera(60, 1, 0.01, 1000);
-    this.camera.position.set(0, 0, 5);
+    this.camera.up.set(0, 0, 1); // z up
+    this.camera.position.set(0, -5, 0);
 
     // Renderer
     this.renderer = new THREE.WebGLRenderer({
@@ -805,6 +806,9 @@ class Viewer {
     // Controls
     this.controls = new OrbitControls(this.camera, this.renderer.domElement);
     this.controls.enableDamping = true;
+    this.controls.dampingFactor = 0.15;
+    this.controls.rotateSpeed = 0.7;
+    this.controls.zoomSpeed = 0.9;
 
     this.controls.addEventListener("change", () => {
       if (this.onChange) this.onChange(this);
@@ -861,7 +865,7 @@ class Viewer {
 
       // ✅ ONE material only
       const material = new THREE.PointsMaterial({
-        size: R * 0.005, // other options: 0.005, 0.01
+        size: R * 0.003, // other options: 0.005, 0.01
         vertexColors: true,
         map: circleTex,
         transparent: true,
@@ -897,8 +901,10 @@ class Viewer {
 // Create 3 viewers
 // =====================
 
-const stuUrl = "./assets/ply/stu/";
-const kittiUrl = "./assets/ply/kitti/";
+const stuUrl = "./assets/ply/stu/000096_";
+const kittiUrl = "./assets/ply/kitti/000028_";
+const possUrl = "./assets/ply/poss/000401_";
+const nuscenesUrl = "./assets/ply/nuscenes/000009_";
 
 const v1 = new Viewer("pc1", stuUrl + "input.ply");
 const v2 = new Viewer("pc2", stuUrl + "semantic.ply");
@@ -906,10 +912,18 @@ const v3 = new Viewer("pc3", stuUrl + "anomaly.ply");
 const v4 = new Viewer("pc4", kittiUrl + "input.ply");
 const v5 = new Viewer("pc5", kittiUrl + "semantic.ply");
 const v6 = new Viewer("pc6", kittiUrl + "anomaly.ply");
+const v7 = new Viewer("pc7", possUrl + "input.ply");
+const v8 = new Viewer("pc8", possUrl + "semantic.ply");
+const v9 = new Viewer("pc9", possUrl + "anomaly.ply");
+const v10 = new Viewer("pc10", nuscenesUrl + "input.ply");
+const v11 = new Viewer("pc11", nuscenesUrl + "semantic.ply");
+const v12 = new Viewer("pc12", nuscenesUrl + "anomaly.ply");
 const stuGroup = [v1, v2, v3];
 const kittiGroup = [v4, v5, v6];
+const possGroup = [v7, v8, v9];
+const nuscenesGroup = [v10, v11, v12];
 
-const viewers = [...stuGroup, ...kittiGroup];
+const viewers = [...stuGroup, ...kittiGroup, ...possGroup, ...nuscenesGroup];
 
 // =====================
 // Synchronization
@@ -942,6 +956,8 @@ function syncGroup(viewers) {
 
 syncGroup(stuGroup);
 syncGroup(kittiGroup);
+syncGroup(possGroup);
+syncGroup(nuscenesGroup);
 
 
 // =====================
